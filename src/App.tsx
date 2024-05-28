@@ -1,40 +1,31 @@
 import { useEffect, useState } from "react";
-import type { Schema } from "../amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
+// import type { Schema } from "../amplify/data/resource";
+// import { generateClient } from "aws-amplify/data";
+import JobCard from "./components/Card";
 
-const client = generateClient<Schema>();
+import './types/Job';
 
-function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
+// const client = generateClient<Schema>();
 
-  useEffect(() => {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
-    });
-  }, []);
+export const App: React.FC = () => {
+    const [jobs, setJobs] = useState<Job[]>([]);
 
-  function createTodo() {
-    client.models.Todo.create({ content: window.prompt("Todo content") });
-  }
+    useEffect(() => {
+        const loadJobs = async () => {
+          const jobFiles = ['amazon_sde.json']; // List your job files here
+          const jobDataPromises = jobFiles.map(file => fetch(`./assets/jobs/${file}`).then(res => res.json()));
+          const jobData = await Promise.all(jobDataPromises);
+          setJobs(jobData);
+        };
+    
+        loadJobs();
+      }, []);
 
-  return (
-    <main>
-      <h1>My todos</h1>
-      <button onClick={createTodo}>+ new</button>
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>{todo.content}</li>
-        ))}
-      </ul>
-      <div>
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
-          Review next step of this tutorial.
-        </a>
-      </div>
-    </main>
-  );
+    return (
+        <main>
+            {jobs.length>0 && jobs.map(job => 
+                <JobCard key={job.id} job_data={job} />
+            )}
+        </main>
+    );
 }
-
-export default App;
