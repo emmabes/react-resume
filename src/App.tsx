@@ -12,7 +12,7 @@ export const App: React.FC = () => {
 
     useEffect(() => {
         const loadJobs = async () => {
-          const jobFiles = ['amazon_sde.json']; // List your job files here
+          const jobFiles = ['amazon_sde.json'];
           const jobDataPromises = jobFiles.map(file => fetch(`./assets/jobs/${file}`).then(res => res.json()));
           const jobData = await Promise.all(jobDataPromises);
           setJobs(jobData);
